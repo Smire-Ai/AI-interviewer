@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Room - AI Interview Platform{% endblock %}
+
+{% block extra_head %}
+<style>
+.interview-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    margin: -1.5rem;
+    padding: 2rem;
+}
+
+.video-container {
+    position: relative;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.video-controls {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+}
+
+.control-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    transform: scale(1.1);
+}
+
+.attention-meter {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.5rem;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+.question-panel {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chat-container {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 1rem;
+    background: #f8f9fa;
+}
+
+.message {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+.message.hr {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+}
+
+.message.candidate {
+    background: #e8f5e8;
+    border-left: 4px solid #4caf50;
+}
+
+.message.system {
+    background: #fff3e0;
+    border-left: 4px solid #ff9800;
+}
+
+#candidateVideo, #hrVideo {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.status-indicator {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.recording {
+    background: #ff4444;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.ai-feedback {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="interview-container">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center text-white">
+                    <div>
+                        <h3 class="mb-1">Interview Session</h3>
+                        <p class="mb-0 opacity-75" id="sessionInfo">Loading session information...</p>
+                    </div>
+                    <div class="text-end">
+                        <div id="connectionStatus" class="badge bg-success mb-2">Connected</div>
+                        <br>
+                        <div id="sessionTimer" class="h5 mb-0">00:00:00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Interview Area -->
+        <div class="row">
+            <!-- Video Section -->
+            <div class="col-lg-8">
+                <div class="row g-3">
+                    <!-- Candidate Video -->
+                    <div class="col-md-6">
+                        <div class="video-container position-relative">
+                            <video id="candidateVideo" autoplay muted></video>
+                            <div class="status-indicator" id="candidateStatus">Candidate</div>
+                            <div class="attention-meter" id="attentionMeter" style="display: none;">
+                                <small class="text-muted d-block">Attention Score</small>
+                                <div class="progress" style="height: 8px; width: 120px;">
+                                    <div class="progress-bar bg-info" id="attentionBar" style="width: 0%"></div>
+                                </div>
+                                <small id="attentionScore">0%</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- HR Video -->
+                    <div class="col-md-6">
+                        <div class="video-container position-relative">
+                            <video id="hrVideo" autoplay></video>
+                            <div class="status-indicator" id="hrStatus">Interviewer</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Controls -->
+                <div class="text-center mt-3">
+                    <div class="video-controls position-relative d-inline-flex">
+                        <button class="control-btn bg-danger text-white" id="muteBtn" title="Mute/Unmute">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="control-btn bg-primary text-white" id="cameraBtn" title="Camera On/Off">
+                            <i class="fas fa-video"></i>
+                        </button>
+                        <button class="control-btn bg-secondary text-white" id="settingsBtn" title="Settings">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <button class="control-btn bg-warning text-dark" id="leaveBtn" title="Leave Interview">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="col-lg-4">
+                <!-- Session Status -->
+                <div class="question-panel mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Session Status
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="mb-2">
+                                    <i class="fas fa-eye fa-2x text-info"></i>
+                                </div>
+                                <small class="text-muted">Face Detection</small>
+                                <div id="faceDetectionStatus" class="badge bg-secondary">Off</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mb-2">
+                                    <i class="fas fa-volume-up fa-2x text-success"></i>
+                                </div>
+                                <small class="text-muted">Audio Feedback</small>
+                                <div id="audioFeedbackStatus" class="badge bg-secondary">Off</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mb-2">
+                                    <i class="fas fa-chart-bar fa-2x text-warning"></i>
+                                </div>
+                                <small class="text-muted">ATS Scoring</small>
+                                <div id="atsScoringStatus" class="badge bg-secondary">Off</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Question -->
+                <div class="question-panel mb-3" id="questionPanel" style="display: none;">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>Current Question
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="currentQuestion" class="mb-3"></div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted" id="questionType"></small>
+                            <small class="text-muted" id="questionTimer">Time: 0:00</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HR Controls (Only for HR users) -->
+                <div class="question-panel mb-3" id="hrControls" style="display: none;">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-tools me-2"></i>Interview Controls
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Ask Question</label>
+                            <select class="form-select mb-2" id="questionTypeSelect">
+                                <option value="technical">Technical</option>
+                                <option value="behavioral">Behavioral</option>
+                                <option value="cultural">Cultural</option>
+                            </select>
+                            <textarea class="form-control mb-2" id="questionInput" 
+                                     placeholder="Type your question here..." rows="3"></textarea>
+                            <button class="btn btn-primary btn-sm w-100" onclick="askQuestion()">
+                                <i class="fas fa-paper-plane me-1"></i>Ask Question
+                            </button>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-sm" id="startInterviewBtn" onclick="startInterview()">
+                                <i class="fas fa-play me-1"></i>Start Interview
+                            </button>
+                            <button class="btn btn-danger btn-sm" id="endInterviewBtn" onclick="endInterview()" 
+                                   style="display: none;">
+                                <i class="fas fa-stop me-1"></i>End Interview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Answer Panel (Only for Candidates) -->
+                <div class="question-panel mb-3" id="answerPanel" style="display: none;">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-comment me-2"></i>Your Answer
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control mb-3" id="answerInput" 
+                                 placeholder="Type your answer here..." rows="4"></textarea>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success" onclick="submitAnswer()">
+                                <i class="fas fa-check me-1"></i>Submit Answer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Feedback -->
+                <div id="aiFeedbackContainer" style="display: none;">
+                    <div class="ai-feedback">
+                        <h6 class="mb-2">
+                            <i class="fas fa-robot me-2"></i>AI Feedback
+                        </h6>
+                        <div id="aiFeedbackContent"></div>
+                        <div class="mt-2">
+                            <small>Score: <span id="aiScore" class="fw-bold">-</span>/10</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Messages -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="question-panel">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-comments me-2"></i>Interview Log
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="chat-container" id="messageContainer">
+                            <div class="message system">
+                                <small class="text-muted">System</small>
+                                <div>Welcome to the AI Interview Platform. Waiting for session to start...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audio Player for TTS -->
+<audio id="ttsPlayer" preload="auto"></audio>
+
+<!-- Settings Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Interview Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Camera Device</label>
+                    <select class="form-select" id="cameraSelect">
+                        <option>Loading cameras...</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Microphone Device</label>
+                    <select class="form-select" id="microphoneSelect">
+                        <option>Loading microphones...</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="enableNotifications" checked>
+                        <label class="form-check-label" for="enableNotifications">
+                            Enable Audio Notifications
+                        </label>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Audio Volume</label>
+                    <input type="range" class="form-range" id="volumeSlider" min="0" max="100" value="80">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const SESSION_ID = "{{ session_id }}";
+</script>
+<script src="{{ url_for('static', path='/js/interview-room.js') }}"></script>
+{% endblock %}

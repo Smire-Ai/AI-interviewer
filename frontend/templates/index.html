@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Home - AI Interview Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center min-vh-100">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold text-primary mb-4">
+                AI-Powered Interview Platform
+            </h1>
+            <p class="lead mb-4">
+                Experience the future of hiring with our comprehensive AI interview platform. 
+                Features real-time face detection, multi-voice audio feedback, and advanced ATS scoring.
+            </p>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-user-tie fa-3x text-primary mb-3"></i>
+                            <h5>For HR & Recruiters</h5>
+                            <p class="text-muted">Create interviews, analyze candidates, and get comprehensive ATS reports</p>
+                            <a href="/hr" class="btn btn-primary">HR Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-user-graduate fa-3x text-success mb-3"></i>
+                            <h5>For Job Seekers</h5>
+                            <p class="text-muted">Join interviews, get real-time feedback, and improve your skills</p>
+                            <a href="/candidate" class="btn btn-success">Candidate Portal</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="text-center">
+                <img src="https://via.placeholder.com/500x400/007bff/ffffff?text=AI+Interview+Platform" 
+                     alt="AI Interview Platform" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Platform Features</h2>
+            <p class="lead text-muted">Advanced AI technology for modern interviewing</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-eye fa-3x text-warning"></i>
+                        </div>
+                        <h5 class="card-title">MediaPipe Face Detection</h5>
+                        <p class="card-text">
+                            Real-time attention tracking and engagement analysis during interviews
+                            using advanced computer vision technology.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-volume-up fa-3x text-danger"></i>
+                        </div>
+                        <h5 class="card-title">Multi-Voice Audio Feedback</h5>
+                        <p class="card-text">
+                            Kokoro TTS integration providing natural, multi-voice audio feedback
+                            and guidance throughout the interview process.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-chart-line fa-3x text-info"></i>
+                        </div>
+                        <h5 class="card-title">ATS Scoring System</h5>
+                        <p class="card-text">
+                            Comprehensive applicant tracking system with detailed scoring
+                            and analytics for better hiring decisions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-users fa-3x text-success"></i>
+                        </div>
+                        <h5 class="card-title">Role-Based Access</h5>
+                        <p class="card-text">
+                            Separate dashboards and permissions for HR professionals
+                            and job candidates with tailored experiences.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-video fa-3x text-purple"></i>
+                        </div>
+                        <h5 class="card-title">Real-Time Interviews</h5>
+                        <p class="card-text">
+                            Live video interviews with real-time AI analysis,
+                            feedback generation, and performance tracking.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-brain fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">AI-Powered Analysis</h5>
+                        <p class="card-text">
+                            Advanced natural language processing for response analysis,
+                            sentiment detection, and improvement recommendations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-5 bg-light rounded">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">How It Works</h2>
+            <p class="lead text-muted">Simple steps to get started</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 text-center">
+                <div class="step-number mb-3">
+                    <span class="badge bg-primary rounded-circle p-3 fs-4">1</span>
+                </div>
+                <h5>Register & Login</h5>
+                <p class="text-muted">Create your account as HR or Candidate</p>
+            </div>
+            
+            <div class="col-lg-3 text-center">
+                <div class="step-number mb-3">
+                    <span class="badge bg-primary rounded-circle p-3 fs-4">2</span>
+                </div>
+                <h5>Schedule Interview</h5>
+                <p class="text-muted">HR creates interview sessions with job details</p>
+            </div>
+            
+            <div class="col-lg-3 text-center">
+                <div class="step-number mb-3">
+                    <span class="badge bg-primary rounded-circle p-3 fs-4">3</span>
+                </div>
+                <h5>Conduct Interview</h5>
+                <p class="text-muted">Real-time AI analysis and feedback</p>
+            </div>
+            
+            <div class="col-lg-3 text-center">
+                <div class="step-number mb-3">
+                    <span class="badge bg-primary rounded-circle p-3 fs-4">4</span>
+                </div>
+                <h5>Review Results</h5>
+                <p class="text-muted">Comprehensive ATS reports and recommendations</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 text-center">
+        <h2 class="display-6 fw-bold mb-4">Ready to Transform Your Hiring Process?</h2>
+        <p class="lead mb-4">Join thousands of companies using AI-powered interviews</p>
+        <div class="d-flex justify-content-center gap-3">
+            <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#registerModal">
+                <i class="fas fa-rocket me-2"></i>Get Started Free
+            </button>
+            <button class="btn btn-outline-primary btn-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <i class="fas fa-sign-in-alt me-2"></i>Login Now
+            </button>
+        </div>
+    </section>
+</div>
+
+<style>
+.feature-icon {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-number .badge {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.min-vh-100 {
+    min-height: 80vh;
+}
+</style>
+{% endblock %}
