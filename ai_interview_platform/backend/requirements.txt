@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+gradio_client
+supabase
+firebase-admin
+PyJWT
+requests
+python-multipart
