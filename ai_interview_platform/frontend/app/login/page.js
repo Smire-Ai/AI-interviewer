@@ -1,13 +1,25 @@
+// File: frontend/app/login/page.js
 'use client';
 
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '../../lib/firebase'; // Correct path from app/login -> lib
+import { auth } from '../../lib/firebase';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext'; // Correct path from app/login -> context
+import { useAuth } from '../../context/AuthContext';
+import { useEffect } from 'react'; // <-- IMPORT useEffect
 
 export default function LoginPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
+
+  // --- THIS IS THE FIX ---
+  // We use a useEffect to handle the redirect.
+  // This code will run only after the component has rendered.
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
+
 
   const handleSignIn = async () => {
     const provider = new GoogleAuthProvider();
@@ -18,15 +30,12 @@ export default function LoginPage() {
     }
   };
 
-  if (loading) {
+  if (loading || user) {
+    // While loading or redirecting, show a message
     return <p style={{ textAlign: 'center', paddingTop: '2rem' }}>Loading...</p>;
   }
 
-  if (user) {
-    router.push('/');
-    return null;
-  }
-
+  // If not loading and no user, show the login button
   return (
     <main style={{ padding: '2rem', textAlign: 'center' }}>
       <h1>Login to Your Account</h1>
