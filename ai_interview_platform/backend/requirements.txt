@@ -7,3 +7,4 @@ firebase-admin
 PyJWT
 requests
 python-multipart
+websockets>=13.0

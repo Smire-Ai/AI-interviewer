@@ -10,11 +10,12 @@
   },
   "dependencies": {
     "@mediapipe/face_detection": "^0.4.1646425229",
+    "@supabase/supabase-js": "^2.57.4",
     "axios": "^1.12.2",
     "firebase": "^12.2.1",
-    "next": "15.5.3",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "next": "^15.5.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "react-webcam": "^7.2.0"
   },
   "devDependencies": {

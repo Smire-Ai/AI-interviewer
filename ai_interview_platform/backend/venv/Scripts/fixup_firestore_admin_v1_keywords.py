@@ -1,4 +1,4 @@
-#!C:\Users\Satyam Pote\OneDrive\Desktop\AI-interviewer\ai_interview_platform\backend\venv\Scripts\python.exe
+#!C:\Users\Ahmad\Documents\GitHub\AI-interviewer\ai_interview_platform\backend\venv\Scripts\python.exe
 # -*- coding: utf-8 -*-
 # Copyright 2025 Google LLC
 #

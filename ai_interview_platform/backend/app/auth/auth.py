@@ -1,37 +1,36 @@
+# File: backend/app/auth/auth.py
+
 import os
 import jwt
 from datetime import datetime, timedelta
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import HTTPException, status
 import firebase_admin
 from firebase_admin import auth, credentials
 from dotenv import load_dotenv
 import json
 
-# Load environment variables
+# Load environment variables from the .env file in the project root
 load_dotenv()
 
 # --- Initialize Firebase Admin SDK ---
-# Get the Firebase service account credentials from environment variables
-firebase_creds_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
-if not firebase_creds_json:
-    raise ValueError("FIREBASE_SERVICE_ACCOUNT_JSON is not set in the .env file.")
+try:
+    firebase_creds_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
+    if not firebase_creds_json:
+        raise ValueError("FIREBASE_SERVICE_ACCOUNT_JSON is not set in the .env file.")
 
-# Parse the JSON string into a dictionary
-firebase_creds_dict = json.loads(firebase_creds_json)
-cred = credentials.Certificate(firebase_creds_dict)
+    firebase_creds_dict = json.loads(firebase_creds_json)
+    cred = credentials.Certificate(firebase_creds_dict)
 
-# Initialize the Firebase app if it hasn't been already
-if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred)
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(cred)
+except Exception as e:
+    print(f"CRITICAL FIREBASE INIT ERROR: {e}")
+    # This will prevent the app from starting if Firebase is not configured.
 
 # --- JWT Configuration ---
 JWT_SECRET = os.environ.get("JWT_SECRET")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 7
-
-# This helps FastAPI understand how to extract the token
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def create_access_token(data: dict):
     """Generates a new JWT for our application."""
@@ -48,6 +47,7 @@ def verify_firebase_token(id_token: str):
         return decoded_token
     except Exception as e:
         # If the token is invalid, raise an error
+        print(f"Firebase token verification failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid Firebase authentication credentials: {e}",

@@ -2,3 +2,6 @@ docker-compose build
 docker-compose up
 uvicorn app.main:app --reload
 .\venv\Scripts\activate
+
+
+always use the verchual enverment
