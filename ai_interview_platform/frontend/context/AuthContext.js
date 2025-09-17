@@ -8,8 +8,7 @@ import axios from 'axios';
 import { supabase } from '../lib/supabaseClient';
 
 // --- Role Selection Modal Component ---
-// This component itself is likely fine, but we'll include it for completeness.
-function RoleSelectionModal({ user, onRoleSelected }) {
+function RoleSelectionModal({ user, onRoleSelected, isSyncing }) {
   const modalStyle = {
     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.7)', display: 'flex',
@@ -21,17 +20,9 @@ function RoleSelectionModal({ user, onRoleSelected }) {
   };
   const buttonStyle = {
     padding: '10px 20px', margin: '0 10px', fontSize: '1rem', cursor: 'pointer',
-    border: '1px solid #007bff', color: '#007bff', background: 'white', borderRadius: '5px'
-  };
-
-  const handleJobSeekerClick = () => {
-    console.log("Job Seeker button clicked. Calling onRoleSelected...");
-    onRoleSelected('Job Seeker');
-  };
-  
-  const handleHrClick = () => {
-    console.log("HR button clicked. Calling onRoleSelected...");
-    onRoleSelected('HR');
+    border: '1px solid #007bff', color: '#007bff', background: 'white', borderRadius: '5px',
+    // Disable button while syncing
+    opacity: isSyncing ? 0.5 : 1,
   };
 
   return (
@@ -40,8 +31,12 @@ function RoleSelectionModal({ user, onRoleSelected }) {
         <h2>Welcome, {user.displayName}!</h2>
         <p>Please select your role to continue.</p>
         <div style={{ marginTop: '30px' }}>
-          <button style={buttonStyle} onClick={handleJobSeekerClick}>I am a Job Seeker</button>
-          <button style={buttonStyle} onClick={handleHrClick}>I am an HR / Recruiter</button>
+          <button style={buttonStyle} onClick={() => onRoleSelected('Job Seeker')} disabled={isSyncing}>
+            {isSyncing ? 'Saving...' : 'I am a Job Seeker'}
+          </button>
+          <button style={buttonStyle} onClick={() => onRoleSelected('HR')} disabled={isSyncing}>
+            {isSyncing ? 'Saving...' : 'I am an HR / Recruiter'}
+          </button>
         </div>
       </div>
     </div>
@@ -56,31 +51,27 @@ export function AuthProvider({ children }) {
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showRoleModal, setShowRoleModal] = useState(false);
+  const [isSyncingRole, setIsSyncingRole] = useState(false); // <-- NEW state to track API call
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       console.log("Auth state changed. User:", firebaseUser ? firebaseUser.email : 'null');
       if (firebaseUser) {
-        // User is logged in
         const { data: existingUser } = await supabase
           .from('users')
           .select('role')
           .eq('firebase_uid', firebaseUser.uid)
           .single();
 
-        console.log("Checked Supabase for user. Found:", existingUser);
         if (existingUser && existingUser.role) {
           setUser(firebaseUser);
           setUserRole(existingUser.role);
           setShowRoleModal(false);
-          console.log("User has a role. Hiding modal.");
         } else {
           setUser(firebaseUser);
           setShowRoleModal(true);
-          console.log("User is new or has no role. Showing modal.");
         }
       } else {
-        // User is logged out
         setUser(null);
         setUserRole(null);
       }
@@ -89,32 +80,33 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
-  // --- THIS IS THE CRITICAL FUNCTION ---
   const handleRoleSelected = async (role) => {
-    if (!user) {
-      console.error("handleRoleSelected called but there is no user!");
-      return;
-    }
+    if (!user || isSyncingRole) return;
     
-    console.log(`Role selected: ${role}. Preparing to sync with backend.`);
+    setIsSyncingRole(true); // <-- Start loading state
+    console.log(`Role selected: ${role}. Attempting to sync.`);
+
     try {
-      console.log("Getting Firebase ID token...");
       const token = await user.getIdToken(true);
-      console.log("Token acquired. Sending to /sync-user endpoint...");
       
-      const response = await axios.post('http://localhost:8000/sync-user', { token, role });
+      const response = await axios.post('http://localhost:8000/sync-user', { 
+        token: token, 
+        role: role 
+      });
       
       console.log("Backend response:", response.data);
       if (response.data.status === 'success') {
         console.log("Sync successful! Closing modal.");
         setUserRole(role);
-        setShowRoleModal(false);
+        setShowRoleModal(false); // <-- This will now definitely be called on success
       } else {
-        console.error("Backend returned an error:", response.data);
+        throw new Error(response.data.message || "Backend responded with an error.");
       }
     } catch (error) {
       console.error("CRITICAL ERROR: Failed to sync user role. Is the backend server running? Details:", error);
-      // You can add logic here to show an error message to the user
+      alert("Error: Could not save your role. Please make sure the server is running and try logging in again.");
+    } finally {
+      setIsSyncingRole(false); // <-- Stop loading state no matter what
     }
   };
 
@@ -122,7 +114,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {showRoleModal && <RoleSelectionModal user={user} onRoleSelected={handleRoleSelected} />}
+      {showRoleModal && <RoleSelectionModal user={user} onRoleSelected={handleRoleSelected} isSyncing={isSyncingRole} />}
       {children}
     </AuthContext.Provider>
   );
