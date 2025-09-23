@@ -27,7 +27,11 @@ export default function SeekerDashboard() {
     formData.append('jd', jobDescription);
     formData.append('github_user', githubUser);
     try {
-      const response = await axios.post('http://localhost:8000/analyze-resume/', formData);
+      const response = await axios.post(
+  `${process.env.NEXT_PUBLIC_API_BASE_URL}/analyze-resume/`,
+  formData
+);
+
       setAnalysisResult(response.data);
     } catch (err) {
       setError('An error occurred during analysis. The AI model might be waking up. Please try again in 60 seconds.');

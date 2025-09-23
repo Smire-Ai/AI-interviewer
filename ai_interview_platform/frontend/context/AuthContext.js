@@ -89,10 +89,14 @@ export function AuthProvider({ children }) {
     try {
       const token = await user.getIdToken(true);
       
-      const response = await axios.post('http://localhost:8000/sync-user', { 
-        token: token, 
-        role: role 
-      });
+      const response = await axios.post(
+  `${process.env.NEXT_PUBLIC_API_BASE_URL}/sync-user`,
+  {
+    token: token,
+    role: role
+  }
+);
+
       
       console.log("Backend response:", response.data);
       if (response.data.status === 'success') {

@@ -69,13 +69,23 @@ WSGI_APPLICATION = 'admin_project.wsgi.application'
 
 
 # Database configuration from environment variable (Supabase)
+# ... (all other settings like INSTALLED_APPS, MIDDLEWARE, etc., remain the same)
+
+# --- DATABASE CONFIGURATION ---
+# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+# This is the new, robust configuration block.
+# It reads the DATABASE_URL from your .env file.
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
+        # The 'default' value is a fallback, but the value from your .env file will be used.
+        default='postgresql://postgres:SatyamPote9999@db.grlaucwvagdhnwydyjdn.supabase.co:5432/postgres',
         conn_max_age=600,
-        ssl_require=True  # Supabase requires SSL
+        ssl_require=False # Use False for local development, True for production
     )
 }
+
+# ... (the rest of your settings file)
 
 
 # Password validation
