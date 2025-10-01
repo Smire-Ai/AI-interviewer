@@ -1,8 +1,9 @@
-# backend/requirements.txt
+# backend/requirements.txt (FINAL)
 fastapi
 uvicorn[standard]
 python-dotenv
 supabase
+postgrest
 passlib
 argon2-cffi
 python-jose[cryptography]
@@ -10,4 +11,4 @@ pydantic
 PyPDF2
 reportlab
 python-multipart
-requests
+groq

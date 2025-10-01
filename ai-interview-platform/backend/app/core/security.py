@@ -1,11 +1,10 @@
-# backend/app/core/security.py (NEW AND CORRECTED)
-
+# backend/app/core/security.py (FINAL)
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from app.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
-# Switch from bcrypt to the more modern and reliable argon2
+# Using the modern and reliable argon2 for password hashing
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
