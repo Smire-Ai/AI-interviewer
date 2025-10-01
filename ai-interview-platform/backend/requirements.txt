@@ -11,4 +11,3 @@ PyPDF2
 reportlab
 python-multipart
 requests
-pydantic[email]
