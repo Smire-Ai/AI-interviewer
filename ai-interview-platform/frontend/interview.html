@@ -1,1 +1,42 @@
 <!-- Interview Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="interview-container">
+        <div id="interview-setup">
+            <h2>Interview Setup</h2>
+            <p>Please enable your camera and microphone to begin.</p>
+            <button id="start-interview-btn">Start Interview</button>
+        </div>
+
+        <div id="interview-main" style="display:none;">
+            <div class="video-proctor">
+                <video id="user-video" autoplay muted></video>
+                <div id="proctor-status">
+                    <p><strong>Status:</strong> <span id="ai-status">Initializing...</span></p>
+                    <p><strong>Proctoring:</strong> <span id="proctor-alert">OK</span></p>
+                </div>
+            </div>
+            <div class="transcript-container">
+                <h3>Transcript</h3>
+                <div id="transcript"></div>
+            </div>
+            <button id="end-interview-btn" style="display:none;">End Interview</button>
+        </div>
+        <div id="interview-complete" style="display:none;">
+            <h2>Interview Complete!</h2>
+            <p>Thank you. Your results will be processed and sent to the recruiter.</p>
+            <a href="/candidate_dashboard.html">Back to Dashboard</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="js/interview.js"></script>
+</body>
+</html>

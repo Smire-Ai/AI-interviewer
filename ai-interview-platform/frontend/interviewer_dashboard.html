@@ -1,1 +1,32 @@
 <!-- Interviewer Dashboard HTML -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interviewer Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Interviewer Dashboard</h1>
+        <button id="logout-btn">Logout</button>
+    </header>
+    <main class="dashboard-container">
+        <section class="card">
+            <h2>Create New Job Posting</h2>
+            <input type="text" id="job-title" placeholder="Job Title">
+            <textarea id="job-description" placeholder="Job Description"></textarea>
+            <button id="create-job-btn">Post Job</button>
+        </section>
+
+        <section class="card">
+            <h2>Posted Jobs & Applications</h2>
+            <div id="jobs-list">
+                <!-- Jobs and applications will be loaded here dynamically -->
+            </div>
+        </section>
+    </main>
+    <script src="js/interviewer.js"></script>
+</body>
+</html>

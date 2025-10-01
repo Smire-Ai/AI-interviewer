@@ -1,1 +1,13 @@
-# Add your dependencies here
+# backend/requirements.txt
+fastapi
+uvicorn[standard]
+python-dotenv
+supabase
+passlib
+argon2-cffi
+python-jose[cryptography]
+pydantic
+PyPDF2
+reportlab
+python-multipart
+requests

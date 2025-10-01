@@ -1,1 +1,39 @@
 <!-- Landing Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Platform - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-form" id="login-form">
+            <h2>Login</h2>
+            <input type="email" id="login-email" placeholder="Email" required>
+            <input type="password" id="login-password" placeholder="Password" required>
+            <button id="login-btn">Login</button>
+            <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+        </div>
+
+        <!-- frontend/index.html -->
+
+        <div class="auth-form" id="register-form" style="display:none;">
+            <h2>Register</h2>
+            <input type="text" id="register-name" placeholder="Full Name" required>
+            <input type="email" id="register-email" placeholder="Email" required>
+            <!-- ADD maxlength="72" HERE -->
+            <input type="password" id="register-password" placeholder="Password (8-72 characters)" required maxlength="72">
+            <select id="register-role">
+                <option value="candidate">Candidate</option>
+                <option value="interviewer">Interviewer</option>
+            </select>
+            <button id="register-btn">Register</button>
+            <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+        </div>
+        <p id="auth-error" class="error-message"></p>
+    </div>
+    <script src="js/auth.js"></script>
+</body>
+</html>
