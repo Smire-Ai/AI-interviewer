@@ -1,6 +1,8 @@
+# backend/app/main.py (MODIFIED)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import auth, interviewer, candidate, interview
+from app.api.endpoints import auth, interviewer, candidate, interview # The import is okay
 
 app = FastAPI(
     title="AI Interview Platform API",
@@ -8,14 +10,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS
+# ... (CORS configuration remains the same) ...
 origins = [
-    "http://localhost:5500",      # For standard Live Server access
-    "http://127.0.0.1:5500",      # For explicit loopback access
-    "http://192.168.1.13:5500",   # ADD THIS LINE: For local network access
-    # Add your deployed Vercel frontend URL here later, e.g., "https://your-frontend-project.vercel.app"
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "http://192.168.1.13:5500",
+    "http://127.0.0.1:",
 ]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -28,7 +29,9 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(interviewer.router, prefix="/interviewer", tags=["Interviewer"])
 app.include_router(candidate.router, prefix="/candidate", tags=["Candidate"])
-app.include_router(interview.router, prefix="/interview", tags=["Interview"])
+
+# ** THIS IS THE CHANGE **
+# app.include_router(interview.router, prefix="/interview", tags=["Interview"]) # Comment this line out
 
 @app.get("/", tags=["Root"])
 async def read_root():

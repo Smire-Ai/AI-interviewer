@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.db.supabase_client import supabase
 from app.api.deps import get_current_user
 from app.models.pydantic_models import InterviewResponse, InterviewComplete
-from app.services.ai_services import get_ai_interview_question, generate_final_interview_report
+# from app.services.ai_services import get_ai_interview_question, generate_final_interview_report
 from app.services.pdf_generator import create_interview_report_pdf
 from typing import Dict, Any
 import json

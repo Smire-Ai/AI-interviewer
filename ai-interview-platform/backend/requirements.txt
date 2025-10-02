@@ -12,3 +12,7 @@ PyPDF2
 reportlab
 python-multipart
 groq
+requests
+gradio_client
+PyPDF2
+pdfplumber
