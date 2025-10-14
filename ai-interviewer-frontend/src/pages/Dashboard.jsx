@@ -17,70 +17,61 @@ const Dashboard = () => {
   const [starting, setStarting] = useState(false);
   const navigate = useNavigate();
 
-  // 🔍 --- AGGRESSIVE DEBUGGING VERSION OF useEffect ---
+  // 🔍 --- BARE-METAL FETCH DEBUGGING VERSION ---
   useEffect(() => {
     const fetchJobs = async () => {
-      // Don't proceed if there's no user.
       if (!currentUser) {
         setLoading(false);
-        setError("Waiting for user authentication...");
         return;
       }
 
       setLoading(true);
       setError('');
-      console.log("Attempting to fetch jobs for user:", currentUser.email);
+      console.log("Starting bare-metal fetch for user:", currentUser.email);
 
       try {
-        // --- MANUAL TOKEN HANDLING FOR DEBUGGING ---
-        // 1. Manually get the ID token.
-        const token = await currentUser.getIdToken(true); // 'true' forces a refresh
+        // 1. Get Firebase token
+        const token = await currentUser.getIdToken();
+        console.log("Got token, starting fetch...");
 
-        // 2. Log the token to prove we have it.
-        // Check your browser console. You should see "Bearer eyJ..."
-        console.log("Authorization Header being sent:", `Bearer ${token.substring(0, 30)}...`);
-
-        // 3. Manually make the API call with the token in the header.
-        const response = await apiClient.get('/jobs/', {
+        // 2. Perform direct fetch
+        const response = await fetch('https://ai-interviewer-theta-ivory.vercel.app/api/jobs/', {
+          method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
 
-        // --- END OF MANUAL TOKEN HANDLING ---
+        console.log("Fetch response received. Status:", response.status);
 
-        console.log("Successfully received jobs:", response.data);
-        setJobs(response.data);
-        if (response.data.length > 0) {
-          setSelectedJobId(response.data[0].id);
-        } else {
-          setError("No job descriptions have been created in the admin panel yet.");
+        // 3. Handle non-OK responses
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || `Server responded with status ${response.status}`);
         }
+
+        // 4. Parse response and update state
+        const data = await response.json();
+        console.log("Success! Data received:", data);
+        setJobs(data);
+
+        if (data.length > 0) {
+          setSelectedJobId(data[0].id);
+        } else {
+          setError("No jobs available.");
+        }
+
       } catch (err) {
-        console.error("--- AXIOS ERROR ---");
-        if (err.response) {
-          // The request was made and the server responded with a status code
-          console.error("Status:", err.response.status);
-          console.error("Data:", err.response.data);
-          setError(`Error ${err.response.status}: ${err.response.data.detail || 'Server error'}`);
-        } else if (err.request) {
-          // The request was made but no response was received
-          console.error("Request failed, no response received:", err.request);
-          setError("Network Error: Could not connect to the server. Is it running?");
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          console.error('Error setting up request:', err.message);
-          setError(`An unexpected error occurred: ${err.message}`);
-        }
-        console.error("--- END AXIOS ERROR ---");
+        console.error("Fetch failed:", err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchJobs();
-
-  }, [currentUser]); // Dependency array remains the same
+  }, [currentUser]);
   // 🔍 --- END DEBUGGING useEffect ---
 
   const handleStartInterview = async (e) => {

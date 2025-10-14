@@ -112,3 +112,19 @@ class JobDescriptionListView(generics.ListAPIView):
     serializer_class = JobDescriptionSerializer
     # --- TEMPORARILY COMMENT OUT THIS LINE ---
     # permission_classes = [IsAuthenticated]
+
+
+# ✅ NEW VIEW: Retrieve a specific interview (and its turns)
+class InterviewDetailView(generics.RetrieveAPIView):
+    """
+    Retrieves the state of a specific interview, including all its turns.
+    Ensures that only the candidate who owns the interview can access it.
+    """
+    queryset = Interview.objects.all()
+    serializer_class = InterviewSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'  # Using the UUID from the URL
+
+    def get_queryset(self):
+        # Only allow candidates to see their own interviews
+        return Interview.objects.filter(candidate=self.request.user)
