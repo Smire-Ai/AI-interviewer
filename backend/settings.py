@@ -118,14 +118,20 @@ REST_FRAMEWORK = {
     ]
 }
 
-# CORS settings
 CORS_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    "http://12.0.0.1:5173",
 ]
 
-# For initial testing only (optional)
-# CORS_ALLOW_ALL_ORIGINS = True
+# ADD THIS LIST
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = True
