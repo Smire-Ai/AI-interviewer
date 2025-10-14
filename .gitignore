@@ -1,17 +1,59 @@
-# Ignore the Firebase service account file (never commit it to GitHub)
+# ===============================
+# 🔒 Sensitive files and secrets
+# ===============================
+.env
+*.env
 firebase-service-account.json
+google-cloud-service-account.json
+gemini-api-key.json
+*service-account*.json
+*credentials*.json
+*.key
+*.pem
 
-# Standard Python ignores
+# ===============================
+# 🐍 Python
+# ===============================
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-*.env
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
 
-# Django ignores
+# ===============================
+# 🧱 Virtual environments
+# ===============================
+venv/
+env/
+ENV/
+.venv/
+
+# ===============================
+# ⚙️ Django specific
+# ===============================
 *.sqlite3
+db.sqlite3
 media/
 staticfiles/
+static/
+local_settings.py
 
-# Environment variables
-.env
+# ===============================
+# ☁️ Deployment / Hosting
+# ===============================
+.vercel/
+.vercel_build_output/
+*.log
+*.bak
+
+# ===============================
+# 🧪 IDE & OS files
+# ===============================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

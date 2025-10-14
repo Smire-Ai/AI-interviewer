@@ -23,3 +23,21 @@ firebase-admin
 
 # Google AI
 google-generativeai
+
+
+# requirements.txt
+
+# Django Core
+django
+gunicorn
+
+# REST Framework & CORS
+djangorestframework
+django-cors-headers   # <-- ADD THIS LINE
+
+# Database and Environment
+psycopg2-binary
+dj-database-url
+python-dotenv
+
+# ... (rest of the file)
