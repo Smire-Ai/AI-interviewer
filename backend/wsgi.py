@@ -7,4 +7,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
 initialize_firebase_admin()
 
-app = get_wsgi_application() # Changed 'application' to 'app'
+# This is for the local 'runserver' command
+application = get_wsgi_application()
+
+# This is for Vercel deployment
+app = application
