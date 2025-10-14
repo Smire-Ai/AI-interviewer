@@ -116,11 +116,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'api.authentication.FirebaseAuthentication',
+        # --- ADD THIS LINE FOR DIAGNOSTICS ---
+        # Temporarily disable session authentication to isolate the problem
+        # 'rest_framework.authentication.SessionAuthentication', 
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+# --- ALSO ADD THIS ---
+# This is NOT secure for production, but is a critical test.
+# We are telling Django to trust the CSRF token from any origin.
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://*.vercel.app" 
+]
+
 
 
 CORS_TRUSTED_ORIGINS = [

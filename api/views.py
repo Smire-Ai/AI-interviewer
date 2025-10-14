@@ -106,8 +106,9 @@ class SubmitAnswerView(APIView):
 class JobDescriptionListView(generics.ListAPIView):
     """
     Provides a list of all available job descriptions.
-    Only accessible to authenticated users.
+    Temporarily public for debugging.
     """
     queryset = JobDescription.objects.all()
     serializer_class = JobDescriptionSerializer
-    permission_classes = [IsAuthenticated]
+    # --- TEMPORARILY COMMENT OUT THIS LINE ---
+    # permission_classes = [IsAuthenticated]
