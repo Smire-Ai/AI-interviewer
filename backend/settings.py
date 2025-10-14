@@ -118,12 +118,12 @@ REST_FRAMEWORK = {
     ]
 }
 
+
 CORS_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "http://12.0.0.1:5173",
+    "http://127.0.0.1:5173",
 ]
 
-# ADD THIS LIST
 CORS_ALLOW_HEADERS = [
     "accept",
     "authorization",
