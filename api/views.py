@@ -1,11 +1,12 @@
 # api/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
 from .models import JobDescription, Interview, InterviewTurn
-from .serializers import InterviewSerializer
+from .serializers import InterviewSerializer, JobDescriptionSerializer
 from .gemini_service import generate_initial_question, generate_followup_question
+
 
 class StartInterviewView(APIView):
     permission_classes = [IsAuthenticated]
@@ -60,13 +61,12 @@ class SubmitAnswerView(APIView):
             if interview.status == Interview.Status.COMPLETED:
                 return Response({"error": "This interview is already completed."}, status=status.HTTP_400_BAD_REQUEST)
             
-            # Get the last turn to update it with the answer
             last_turn = interview.turns.latest('turn_number')
         
         except Interview.DoesNotExist:
             return Response({"error": "Interview not found or you do not have permission to access it."}, status=status.HTTP_404_NOT_FOUND)
         except InterviewTurn.DoesNotExist:
-             return Response({"error": "No question found to answer for this interview."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "No question found to answer for this interview."}, status=status.HTTP_404_NOT_FOUND)
 
         # Build conversation history
         history = ""
@@ -75,7 +75,7 @@ class SubmitAnswerView(APIView):
             if turn.candidate_answer:
                 history += f"Candidate: {turn.candidate_answer}\n"
 
-        # Generate feedback and the next question
+        # Generate feedback and next question
         feedback, next_question = generate_followup_question(
             job_title=interview.job_description.title,
             job_description=interview.job_description.description,
@@ -83,12 +83,12 @@ class SubmitAnswerView(APIView):
             candidate_answer=answer_text
         )
 
-        # Update the last turn with the candidate's answer and AI feedback
+        # Update last turn with candidate's answer and feedback
         last_turn.candidate_answer = answer_text
         last_turn.ai_feedback = feedback
         last_turn.save()
 
-        # Create the new turn with the next question
+        # Create a new turn for the next question
         new_turn = InterviewTurn.objects.create(
             interview=interview,
             turn_number=last_turn.turn_number + 1,
@@ -100,3 +100,14 @@ class SubmitAnswerView(APIView):
             "next_question": next_question,
             "turn_number": new_turn.turn_number
         }, status=status.HTTP_201_CREATED)
+
+
+# ✅ NEW VIEW: List all job descriptions
+class JobDescriptionListView(generics.ListAPIView):
+    """
+    Provides a list of all available job descriptions.
+    Only accessible to authenticated users.
+    """
+    queryset = JobDescription.objects.all()
+    serializer_class = JobDescriptionSerializer
+    permission_classes = [IsAuthenticated]
