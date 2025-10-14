@@ -22,7 +22,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Allowed hosts (comma-separated in .env)
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost,ai-interviewer-theta-ivory.vercel.app').split(',')
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost,ai-interviewer-theta-ivory.vercel.app,ai-interviewer-5mkiym2tp-satyampotes-projects.vercel.app').split(',')
 
 # Application definition
 INSTALLED_APPS = [
