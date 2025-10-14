@@ -6,9 +6,12 @@ from .models import UserProfile
 
 class FirebaseAuthentication(BaseAuthentication):
     def authenticate(self, request):
+        # Bypass authentication for CORS preflight requests
+        if request.method == 'OPTIONS':
+            return None
+
         # Get the Authorization header
         auth_header = request.headers.get('Authorization')
-
         if not auth_header:
             return None  # No token provided, proceed with no authentication
 
@@ -30,16 +33,14 @@ class FirebaseAuthentication(BaseAuthentication):
         email = decoded_token.get('email')
 
         # Get or create the user profile in your database
-        # This is where a user is created in your Supabase DB the first time they log in
         user, created = UserProfile.objects.get_or_create(
             uid=uid,
             defaults={'email': email}
         )
 
-        # You can update user details on every login if needed
-        if not created:
-            if user.email != email:
-                user.email = email
-                user.save()
+        # Update user details if needed
+        if not created and user.email != email:
+            user.email = email
+            user.save()
 
-        return (user, None) # Return the user object to be attached to request.user
+        return (user, None)  # Return the user object to be attached to request.user
