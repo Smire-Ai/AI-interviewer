@@ -1,0 +1,17 @@
+# Ignore the Firebase service account file (never commit it to GitHub)
+firebase-service-account.json
+
+# Standard Python ignores
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+
+# Django ignores
+*.sqlite3
+media/
+staticfiles/
+
+# Environment variables
+.env
