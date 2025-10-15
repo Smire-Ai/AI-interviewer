@@ -1,17 +1,17 @@
 # api/authentication.py
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from firebase_admin import auth
+from firebase_admin import auth, exceptions # <-- Add exceptions import
 from .models import UserProfile
+import logging # <-- Add logging import
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 class FirebaseAuthentication(BaseAuthentication):
     def authenticate(self, request):
-        # --- ADD THIS CHECK ---
-        # Don't authenticate OPTIONS requests.
-        # This is crucial for the CORS preflight check to succeed.
         if request.method == 'OPTIONS':
             return None
-        # --- END OF ADDED CHECK ---
 
         auth_header = request.headers.get('Authorization')
 
@@ -21,10 +21,16 @@ class FirebaseAuthentication(BaseAuthentication):
         try:
             id_token = auth_header.split(' ').pop()
             decoded_token = auth.verify_id_token(id_token)
+        # --- START OF MODIFIED BLOCK ---
+        except exceptions.FirebaseError as e:
+            # Catch specific Firebase errors
+            logger.error(f"Firebase verification failed: {e}")
+            raise AuthenticationFailed(f"Invalid Firebase token. Detail: {e}")
         except Exception as e:
-            # Be more specific with error logging if possible
-            # print(f"Firebase auth error: {e}")
-            raise AuthenticationFailed('Invalid or expired Firebase token.')
+            # Catch other general errors (like split failing)
+            logger.error(f"A general error occurred during authentication: {e}")
+            raise AuthenticationFailed("Invalid or expired Firebase token.")
+        # --- END OF MODIFIED BLOCK ---
 
         if not id_token or not decoded_token:
             return None
@@ -32,7 +38,6 @@ class FirebaseAuthentication(BaseAuthentication):
         uid = decoded_token.get('uid')
         email = decoded_token.get('email')
 
-        # Use update_or_create for efficiency and to handle changes in user data from Firebase
         user, created = UserProfile.objects.update_or_create(
             uid=uid,
             defaults={'email': email}
