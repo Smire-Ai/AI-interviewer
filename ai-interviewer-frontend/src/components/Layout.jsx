@@ -7,12 +7,21 @@ import { useAuth } from './AuthProvider';
 const Layout = ({ children }) => {
   const { currentUser } = useAuth();
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      // AuthProvider will handle redirecting to the login page
-    } catch (error) {
-      console.error("Error signing out: ", error);
+  const handleLogout = async () => { /* ... (no changes here) ... */ };
+
+  // --- ADD THIS TEMPORARY FUNCTION ---
+  const logToken = async () => {
+    if (currentUser) {
+      try {
+        const token = await currentUser.getIdToken(true); // Force refresh
+        console.log("--- FIREBASE ID TOKEN ---");
+        console.log(token);
+        console.log("--- END TOKEN --- (Copy the long string above)");
+      } catch (error) {
+        console.error("Error getting ID token:", error);
+      }
+    } else {
+      console.log("No user is currently logged in.");
     }
   };
 
@@ -26,6 +35,15 @@ const Layout = ({ children }) => {
             </div>
             {currentUser && (
               <div className="flex items-center">
+                {/* --- ADD THIS TEMPORARY BUTTON --- */}
+                <button
+                  onClick={logToken}
+                  className="px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 mr-4"
+                >
+                  Log Token
+                </button>
+                {/* --- END OF ADDED BUTTON --- */}
+
                 <span className="text-gray-300 mr-4">{currentUser.email}</span>
                 <button
                   onClick={handleLogout}
@@ -40,9 +58,7 @@ const Layout = ({ children }) => {
       </header>
 
       <main>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {children}
-        </div>
+        {/* ... (no changes here) ... */ }
       </main>
     </div>
   );

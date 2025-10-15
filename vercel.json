@@ -13,5 +13,10 @@
   ],
   "routes": [
     { "src": "/(.*)", "dest": "backend/wsgi.py" }
-  ]
+  ],
+  "functions": {
+    "backend/wsgi.py": {
+      "maxDuration": 15
+    }
+  }
 }

@@ -128,3 +128,13 @@ class InterviewDetailView(generics.RetrieveAPIView):
     def get_queryset(self):
         # Only allow candidates to see their own interviews
         return Interview.objects.filter(candidate=self.request.user)
+
+
+class InterviewDetailView(generics.RetrieveAPIView):
+    queryset = Interview.objects.all()
+    serializer_class = InterviewSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        return Interview.objects.filter(candidate=self.request.user)

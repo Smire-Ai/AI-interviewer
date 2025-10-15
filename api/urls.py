@@ -16,6 +16,7 @@ urlpatterns = [
 
     # Retrieve details of a specific interview (includes all turns)
     path('interviews/<uuid:id>/', InterviewDetailView.as_view(), name='interview-detail'),
+    
 
     # Submit an answer for an existing interview
     path('interviews/<uuid:interview_id>/submit_answer/', SubmitAnswerView.as_view(), name='submit-answer'),
