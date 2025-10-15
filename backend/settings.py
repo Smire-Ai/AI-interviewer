@@ -113,16 +113,17 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # REST Framework
+# backend/settings.py
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'api.authentication.FirebaseAuthentication',
-        # --- ADD THIS LINE FOR DIAGNOSTICS ---
-        # Temporarily disable session authentication to isolate the problem
-        # 'rest_framework.authentication.SessionAuthentication', 
     ],
+    # --- CHANGE THIS ---
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny', # Change from IsAuthenticated
     ]
+    # --- END CHANGE ---
 }
 
 # --- ALSO ADD THIS ---

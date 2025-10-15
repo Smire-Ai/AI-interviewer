@@ -2,14 +2,21 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticated
-from .models import JobDescription, Interview, InterviewTurn
+from rest_framework.permissions import IsAuthenticated  # Keep the import (we’re just commenting it out)
+from .models import JobDescription, Interview, InterviewTurn, UserProfile
 from .serializers import InterviewSerializer, JobDescriptionSerializer
 from .gemini_service import generate_initial_question, generate_followup_question
 
 
+# ✅ Public for debugging
+class JobDescriptionListView(generics.ListAPIView):
+    queryset = JobDescription.objects.all()
+    serializer_class = JobDescriptionSerializer
+    # permission_classes = [IsAuthenticated]  # DISABLED
+
+
 class StartInterviewView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]  # DISABLED
 
     def post(self, request, *args, **kwargs):
         job_description_id = request.data.get('job_description_id')
@@ -29,42 +36,44 @@ class StartInterviewView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Generate the first question using the Gemini Service
+        # ⚠️ Instead of request.user, just grab the first user in the DB
+        user = UserProfile.objects.first()
+        if not user:
+            user = UserProfile.objects.create(uid="dummy_user", email="dummy@example.com", role="CANDIDATE")
+
+        # Generate the first question
         first_question = generate_initial_question(
             job_title=job.title,
             job_description=job.description,
             candidate_resume_text=candidate_resume_text
         )
 
-        # Create the interview and the first turn in the database
-        interview = Interview.objects.create(candidate=request.user, job_description=job)
-        InterviewTurn.objects.create(
-            interview=interview,
-            turn_number=1,
-            question_text=first_question
-        )
+        # Create the interview and first turn
+        interview = Interview.objects.create(candidate=user, job_description=job)
+        InterviewTurn.objects.create(interview=interview, turn_number=1, question_text=first_question)
 
         serializer = InterviewSerializer(interview)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class SubmitAnswerView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]  # DISABLED
 
     def post(self, request, interview_id, *args, **kwargs):
         answer_text = request.data.get('answer')
         if not answer_text:
             return Response({"error": "Answer text is required."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # ⚠️ Removed candidate=request.user
         try:
-            interview = Interview.objects.get(id=interview_id, candidate=request.user)
+            interview = Interview.objects.get(id=interview_id)
             if interview.status == Interview.Status.COMPLETED:
                 return Response({"error": "This interview is already completed."}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             last_turn = interview.turns.latest('turn_number')
-        
+
         except Interview.DoesNotExist:
-            return Response({"error": "Interview not found or you do not have permission to access it."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Interview not found."}, status=status.HTTP_404_NOT_FOUND)
         except InterviewTurn.DoesNotExist:
             return Response({"error": "No question found to answer for this interview."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -75,7 +84,6 @@ class SubmitAnswerView(APIView):
             if turn.candidate_answer:
                 history += f"Candidate: {turn.candidate_answer}\n"
 
-        # Generate feedback and next question
         feedback, next_question = generate_followup_question(
             job_title=interview.job_description.title,
             job_description=interview.job_description.description,
@@ -83,12 +91,10 @@ class SubmitAnswerView(APIView):
             candidate_answer=answer_text
         )
 
-        # Update last turn with candidate's answer and feedback
         last_turn.candidate_answer = answer_text
         last_turn.ai_feedback = feedback
         last_turn.save()
 
-        # Create a new turn for the next question
         new_turn = InterviewTurn.objects.create(
             interview=interview,
             turn_number=last_turn.turn_number + 1,
@@ -102,39 +108,12 @@ class SubmitAnswerView(APIView):
         }, status=status.HTTP_201_CREATED)
 
 
-# ✅ NEW VIEW: List all job descriptions
-class JobDescriptionListView(generics.ListAPIView):
-    """
-    Provides a list of all available job descriptions.
-    Temporarily public for debugging.
-    """
-    queryset = JobDescription.objects.all()
-    serializer_class = JobDescriptionSerializer
-    # --- TEMPORARILY COMMENT OUT THIS LINE ---
-    # permission_classes = [IsAuthenticated]
-
-
-# ✅ NEW VIEW: Retrieve a specific interview (and its turns)
-class InterviewDetailView(generics.RetrieveAPIView):
-    """
-    Retrieves the state of a specific interview, including all its turns.
-    Ensures that only the candidate who owns the interview can access it.
-    """
-    queryset = Interview.objects.all()
-    serializer_class = InterviewSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'id'  # Using the UUID from the URL
-
-    def get_queryset(self):
-        # Only allow candidates to see their own interviews
-        return Interview.objects.filter(candidate=self.request.user)
-
-
 class InterviewDetailView(generics.RetrieveAPIView):
     queryset = Interview.objects.all()
     serializer_class = InterviewSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]  # DISABLED
     lookup_field = 'id'
 
-    def get_queryset(self):
-        return Interview.objects.filter(candidate=self.request.user)
+    # ⚠️ Commented out user filtering
+    # def get_queryset(self):
+    #     return Interview.objects.filter(candidate=self.request.user)
