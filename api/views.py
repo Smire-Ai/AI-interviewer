@@ -1,12 +1,13 @@
 # api/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status, generics, serializers
 from rest_framework.permissions import BasePermission, IsAuthenticated
+from django.utils import timezone
+
 from .models import JobDescription, Interview, InterviewTurn, UserProfile
 from .serializers import InterviewSerializer, JobDescriptionSerializer
 from .gemini_service import generate_initial_question, generate_followup_question
-
 
 # -------------------------------
 # Custom permission class
@@ -20,18 +21,16 @@ class IsAdminOrSuperAdmin(BasePermission):
             request.user.role in ['ADMIN', 'SUPER_ADMIN']
         )
 
-
 # -------------------------------
 # Public views for debugging
 # -------------------------------
 class JobDescriptionListView(generics.ListAPIView):
     queryset = JobDescription.objects.all()
     serializer_class = JobDescriptionSerializer
-    # permission_classes = [IsAuthenticated]  # DISABLED for Phase X
-
+    # permission_classes = [IsAuthenticated]  # DISABLED
 
 class StartInterviewView(APIView):
-    # permission_classes = [IsAuthenticated]  # DISABLED for Phase X
+    # permission_classes = [IsAuthenticated]  # DISABLED
 
     def post(self, request, *args, **kwargs):
         job_description_id = request.data.get('job_description_id')
@@ -67,9 +66,8 @@ class StartInterviewView(APIView):
         serializer = InterviewSerializer(interview)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
 class SubmitAnswerView(APIView):
-    # permission_classes = [IsAuthenticated]  # DISABLED for Phase X
+    # permission_classes = [IsAuthenticated]  # DISABLED
 
     def post(self, request, interview_id, *args, **kwargs):
         answer_text = request.data.get('answer')
@@ -88,6 +86,7 @@ class SubmitAnswerView(APIView):
         except InterviewTurn.DoesNotExist:
             return Response({"error": "No question found to answer for this interview."}, status=status.HTTP_404_NOT_FOUND)
 
+        # Build conversation history
         history = ""
         for turn in interview.turns.all().order_by('turn_number'):
             history += f"Interviewer: {turn.question_text}\n"
@@ -101,6 +100,27 @@ class SubmitAnswerView(APIView):
             candidate_answer=answer_text
         )
 
+        # -------------------------------
+        # Interview completion logic
+        # -------------------------------
+        INTERVIEW_LENGTH = 5
+
+        if last_turn.turn_number >= INTERVIEW_LENGTH:
+            last_turn.candidate_answer = answer_text
+            last_turn.ai_feedback = feedback
+            last_turn.save()
+
+            interview.status = Interview.Status.COMPLETED
+            interview.completed_at = timezone.now()
+            interview.save()
+
+            return Response({
+                "feedback": feedback,
+                "status": "COMPLETED",
+                "message": "Congratulations, you have completed the interview!"
+            }, status=status.HTTP_200_OK)
+
+        # If interview not over, continue as usual
         last_turn.candidate_answer = answer_text
         last_turn.ai_feedback = feedback
         last_turn.save()
@@ -117,25 +137,41 @@ class SubmitAnswerView(APIView):
             "turn_number": new_turn.turn_number
         }, status=status.HTTP_201_CREATED)
 
-
 class InterviewDetailView(generics.RetrieveAPIView):
     queryset = Interview.objects.all()
     serializer_class = InterviewSerializer
-    # permission_classes = [IsAuthenticated]  # DISABLED for Phase X
+    # permission_classes = [IsAuthenticated]  # DISABLED
     lookup_field = 'id'
-
 
 # -------------------------------
 # Admin-only view
 # -------------------------------
 class JobDescriptionCreateView(generics.CreateAPIView):
-    """
-    Endpoint for creating new JobDescription objects.
-    Only accessible by ADMIN or SUPER_ADMIN users.
-    """
     queryset = JobDescription.objects.all()
     serializer_class = JobDescriptionSerializer
     permission_classes = [IsAdminOrSuperAdmin]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+# -------------------------------
+# New UserProfile views
+# -------------------------------
+from .serializers import UserProfileSerializer
+
+class UserProfileCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        user.full_name = request.data.get('full_name', '')
+        user.role = request.data.get('role', 'CANDIDATE')
+        user.save()
+        return Response(UserProfileSerializer(user).data, status=status.HTTP_201_CREATED)
+
+class UserProfileDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        return Response(UserProfileSerializer(user).data)

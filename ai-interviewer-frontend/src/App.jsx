@@ -1,63 +1,49 @@
 // src/App.jsx
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Interview from './pages/Interview';
-import Results from './pages/Results'; // New Page
-import AdminDashboard from './pages/AdminDashboard'; // New Page
-import NotFound from './pages/NotFound';
-import ProtectedRoute from './components/ProtectedRoute'; // Import our protector
+import { Routes, Route, Navigate } from 'react-router-dom';
+// --- FIX THESE TWO LINES ---
 import { useAuth } from './components/AuthProvider';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Import pages
+import Home from './pages/Home';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
+import Dashboard from './pages/Dashboard';
+import Interviewer from './pages/interviews/Interviewer';
+import NotFound from './pages/NotFound';
 
 function App() {
   const { currentUser } = useAuth();
 
   return (
-    <div className="bg-gray-900 min-h-screen text-gray-100">
-      <Routes>
-        {/* Public Route: Login Page */}
-        {/* If a user is logged in and tries to go to '/', they are redirected to the dashboard */}
-        <Route path="/" element={currentUser ? <Navigate to="/dashboard" /> : <Login />} />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={currentUser ? <Navigate to="/dashboard" /> : <Login />} />
+      <Route path="/signup" element={currentUser ? <Navigate to="/dashboard" /> : <SignUp />} />
 
-        {/* Protected Routes: These pages require a user to be logged in */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/interview/:interviewId" 
-          element={
-            <ProtectedRoute>
-              <Interview />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/results/:interviewId" 
-          element={
-            <ProtectedRoute>
-              <Results />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } 
-        />
-
-        {/* Catch-all 404 Route */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </div>
+      {/* Protected Routes */}
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/interview/:interviewId" 
+        element={
+          <ProtectedRoute>
+            <Interviewer />
+          </ProtectedRoute>
+        } 
+      />
+      
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 

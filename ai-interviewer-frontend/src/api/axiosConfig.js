@@ -2,10 +2,9 @@
 import axios from 'axios';
 import { auth } from '../config/firebaseConfig';
 
-// Create an Axios instance
+// Create an Axios instance using the environment variable for the base URL
 const apiClient = axios.create({
-  // IMPORTANT: Replace this with your Vercel deployment URL
-  baseURL: 'https://ai-interviewer-theta-ivory.vercel.app/api', 
+  baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
 });
 
 // Add a request interceptor to include the Firebase auth token
@@ -18,9 +17,7 @@ apiClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default apiClient;

@@ -40,7 +40,6 @@ const Interview = () => {
     fetchInterviewState();
   }, [interviewId, currentUser]);
 
-
   const handleSubmitAnswer = async (e) => {
     e.preventDefault();
     if (!userAnswer.trim()) return;
@@ -49,24 +48,33 @@ const Interview = () => {
     setError('');
 
     try {
+      // Optimistically update the UI
       const updatedTurns = interview.turns.map(t => 
         t.turn_number === currentTurn.turn_number 
         ? { ...t, candidate_answer: userAnswer } 
         : t
       );
       setInterview({ ...interview, turns: updatedTurns });
-      
+
       const response = await apiClient.post(`/interviews/${interviewId}/submit_answer/`, {
         answer: userAnswer,
       });
 
+      // --- START OF MODIFICATION: Handle completed interview ---
+      if (response.data.status === "COMPLETED") {
+        navigate(`/results/${interviewId}`);
+        return; // Stop further execution
+      }
+      // --- END OF MODIFICATION ---
+
+      // If interview not completed, continue as normal
       const newTurn = {
         turn_number: response.data.turn_number,
         question_text: response.data.next_question,
         candidate_answer: null,
         ai_feedback: null,
       };
-      
+
       const finalTurns = updatedTurns.map(t => 
         t.turn_number === currentTurn.turn_number 
         ? { ...t, ai_feedback: response.data.feedback } 
@@ -83,7 +91,6 @@ const Interview = () => {
       setSubmitting(false);
     }
   };
-
 
   if (loading) {
     return <Layout><p className="text-center text-lg">Loading your interview session...</p></Layout>;

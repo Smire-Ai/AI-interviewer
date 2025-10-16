@@ -1,17 +1,16 @@
 // src/components/ProtectedRoute.jsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from './AuthProvider';
+// --- FIX THIS LINE ---
+import { useAuth } from './AuthProvider'; // Changed from './AuthProvider' or another incorrect path
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useAuth();
 
   if (!currentUser) {
-    // If user is not logged in, redirect them to the login page
     return <Navigate to="/" />;
   }
 
-  // If user is logged in, show the page content
   return children;
 };
 

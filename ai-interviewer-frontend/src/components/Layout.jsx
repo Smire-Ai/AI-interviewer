@@ -1,9 +1,9 @@
-// src/components/Layout.jsx
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
-import { auth } from '../config/firebaseConfig';
-import { useAuth } from './AuthProvider';
+import { auth } from '../config/firebaseConfig'; // This path is correct
+// --- FIX THIS LINE ---
+import { useAuth } from './AuthProvider'; // Changed from '../components/auth/AuthProvider'
 
 const Layout = ({ children }) => {
   const { currentUser } = useAuth();
