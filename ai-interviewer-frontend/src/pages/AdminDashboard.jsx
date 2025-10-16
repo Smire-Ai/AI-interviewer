@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import apiClient from '../api/axiosConfig';
+// src/pages/AdminDashboard.jsx
+// ...
+import Layout from '../components/Layout'; // Correct path
+// ...
 
 const AdminDashboard = () => {
   const [title, setTitle] = useState('');

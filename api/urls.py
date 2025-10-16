@@ -7,7 +7,8 @@ from .views import (
     JobDescriptionCreateView,
     InterviewDetailView,
     UserProfileCreateView,
-    UserProfileDetailView
+    UserProfileDetailView,
+    AtsCheckView,  # New import
 )
 
 urlpatterns = [
@@ -29,4 +30,9 @@ urlpatterns = [
     # -------------------------------
     path('auth/signup/', UserProfileCreateView.as_view(), name='user-signup'),
     path('auth/user/', UserProfileDetailView.as_view(), name='user-detail'),
+
+    # -------------------------------
+    # ATS resume check URL
+    # -------------------------------
+    path('jobs/<uuid:job_id>/check_resume/', AtsCheckView.as_view(), name='ats-check'),
 ]

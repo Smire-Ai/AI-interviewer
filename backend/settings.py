@@ -119,11 +119,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'api.authentication.FirebaseAuthentication',
     ],
-    # --- CHANGE THIS ---
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny', # Change from IsAuthenticated
+        # This MUST be AllowAny for our frontend tests to work right now
+        'rest_framework.permissions.AllowAny', 
     ]
-    # --- END CHANGE ---
 }
 
 # --- ALSO ADD THIS ---

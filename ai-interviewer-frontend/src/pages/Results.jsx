@@ -4,6 +4,10 @@ import { Link, useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import apiClient from '../api/axiosConfig';
 import { useAuth } from '../components/AuthProvider';
+// src/pages/Results.jsx
+// ...
+import Layout from '../components/Layout'; // Correct path
+// ...
 
 const Results = () => {
   const { interviewId } = useParams();

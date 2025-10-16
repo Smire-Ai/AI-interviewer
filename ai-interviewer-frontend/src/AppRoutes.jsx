@@ -1,9 +1,9 @@
-// src/App.jsx
+// src/AppRoutes.jsx
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import ProtectedRoute from './components/ProtectedRoute'; // Only import what's needed for routing
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './components/AuthProvider';
+import ProtectedRoute from './components/ProtectedRoute';
 
-// Import pages
 import Home from './pages/Home';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
@@ -11,21 +11,19 @@ import Dashboard from './pages/Dashboard';
 import Interviewer from './pages/interviews/Interviewer';
 import NotFound from './pages/NotFound';
 
-function App() {
-  // DO NOT CALL useAuth() HERE
+const AppRoutes = () => {
+  const { currentUser } = useAuth(); // This will now work correctly
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignUp />} />
-
-      {/* The ProtectedRoute component will handle auth checks */}
+      <Route path="/login" element={currentUser ? <Navigate to="/dashboard" /> : <Login />} />
+      <Route path="/signup" element={currentUser ? <Navigate to="/dashboard" /> : <SignUp />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/interview/:interviewId" element={<ProtectedRoute><Interviewer /></ProtectedRoute>} />
-      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
-}
+};
 
-export default App;
+export default AppRoutes;

@@ -1,3 +1,4 @@
+// src/components/AuthProvider.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../config/firebaseConfig';
@@ -22,7 +23,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const value = { currentUser, loading };
-
+  
   return (
     <AuthContext.Provider value={value}>
       {children}
@@ -30,4 +31,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+// The useAuth hook is exported from this file
+export const useAuth = () => {
+  return useContext(AuthContext);
+};

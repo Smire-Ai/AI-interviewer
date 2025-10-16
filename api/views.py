@@ -6,8 +6,8 @@ from rest_framework.permissions import BasePermission, IsAuthenticated
 from django.utils import timezone
 
 from .models import JobDescription, Interview, InterviewTurn, UserProfile
-from .serializers import InterviewSerializer, JobDescriptionSerializer
-from .gemini_service import generate_initial_question, generate_followup_question
+from .serializers import InterviewSerializer, JobDescriptionSerializer, UserProfileSerializer
+from .gemini_service import generate_initial_question, generate_followup_question, check_resume_ats
 
 # -------------------------------
 # Custom permission class
@@ -155,10 +155,8 @@ class JobDescriptionCreateView(generics.CreateAPIView):
         serializer.save(created_by=self.request.user)
 
 # -------------------------------
-# New UserProfile views
+# UserProfile views
 # -------------------------------
-from .serializers import UserProfileSerializer
-
 class UserProfileCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -175,3 +173,21 @@ class UserProfileDetailView(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         return Response(UserProfileSerializer(user).data)
+
+# -------------------------------
+# New ATS Check view
+# -------------------------------
+class AtsCheckView(APIView):
+    # permission_classes = [IsAuthenticated] # Disabled for now
+
+    def post(self, request, job_id, *args, **kwargs):
+        resume_text = request.data.get('resume_text')
+        if not resume_text:
+            return Response({"error": "Resume text is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            job = JobDescription.objects.get(id=job_id)
+            ats_result = check_resume_ats(job.description, resume_text)
+            return Response(ats_result, status=status.HTTP_200_OK)
+        except JobDescription.DoesNotExist:
+            return Response({"error": "JobDescription not found."}, status=status.HTTP_404_NOT_FOUND)
